@@ -1,7 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 
 /***********************************************/
-/*************** REQUEST HANDLER ***************/
+/******************* REQUEST *******************/
 /***********************************************/
 
 export type ApiRequestHandler<ContextType> = (
@@ -13,7 +13,7 @@ export type ApiRequestHandler<ContextType> = (
 export type WrappedApiRequestHandler = (
   req: NextApiRequest,
   res: NextApiResponse
-) => void
+) => Promise<void>
 
 export type ApiContextGenerator<ContextType> = (
   req: NextApiRequest,
@@ -24,7 +24,7 @@ export type ApiErrorHandler = (
   req: NextApiRequest,
   res: NextApiResponse,
   err: unknown
-) => void
+) => Promise<void>
 
 export type ApiRequestHandlerWrapper = <ContextType>(
   requestHandler: ApiRequestHandler<ContextType>,
@@ -34,21 +34,44 @@ export type ApiRequestHandlerWrapper = <ContextType>(
 ) => WrappedApiRequestHandler
 
 /***********************************************/
-/**************** ROUTE HANDLER ****************/
+/******************** ROUTE ********************/
 /***********************************************/
 
 export type ApiMethodType = 'post' | 'get' | 'put' | 'patch' | 'delete'
 
-export type ApiRouteHandler = Record<ApiMethodType, ApiRequestHandler>
-
-export type WrappedApiRouteHandler<ContextType> = Record<
+export type ApiRouteHandler<ContextType> = Record<
   ApiMethodType,
-  WrappedApiRequestHandler<ContextType>
+  ApiRequestHandler<ContextType>
 >
 
-export type ApiConfig = {
-  routeHandler: ApiRouteHandler
-  onError: ApiErrorHandler
+export type WrappedApiRouteHandler = Record<
+  ApiMethodType,
+  WrappedApiRequestHandler
+>
+
+export type ApiRouteHandlerWrapper = <ContextType>(
+  routeHandler: ApiRouteHandler<ContextType>,
+  contextGenerator: ApiContextGenerator<ContextType>,
+  onContextGenerationError: ApiErrorHandler,
+  onRequestHandlingError: ApiErrorHandler
+) => WrappedApiRouteHandler
+
+/***********************************************/
+/****************** GENERATOR ******************/
+/***********************************************/
+
+export type ApiHandlerConfig<ContextType> = {
+  routeHandler: ApiRouteHandler<ContextType>
+  contextGenerator: ApiContextGenerator<ContextType>
+  onContextGenerationError: ApiErrorHandler
+  onRequestHandlingError: ApiErrorHandler
 }
 
-export type ApiHandlerGenerator = (apiConfig: ApiConfig) => ApiRequestHandler
+export type ApiHandler = (
+  req: NextApiRequest,
+  res: NextApiResponse
+) => Promise<void>
+
+export type ApiHandlerGenerator = <ContextType>(
+  config: ApiHandlerConfig<ContextType>
+) => ApiHandler

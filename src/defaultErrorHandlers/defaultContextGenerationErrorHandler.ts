@@ -1,6 +1,6 @@
 import { ApiErrorHandler } from '../types'
 
-const defaultContextGenerationErrorHandler: ApiErrorHandler = (
+const defaultContextGenerationErrorHandler: ApiErrorHandler = async (
   req,
   res,
   err

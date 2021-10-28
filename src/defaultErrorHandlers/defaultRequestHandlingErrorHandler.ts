@@ -1,6 +1,10 @@
 import { ApiErrorHandler } from '../types'
 
-const defaultRequestHandlingErrorHandler: ApiErrorHandler = (req, res, err) => {
+const defaultRequestHandlingErrorHandler: ApiErrorHandler = async (
+  req,
+  res,
+  err
+) => {
   // Log error
   console.error(err)
 
